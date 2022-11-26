@@ -1,1 +1,1 @@
-# step-istio-shim
+# istio-ca-shim-step
