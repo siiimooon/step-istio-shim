@@ -1,0 +1,22 @@
+ca:
+  fingerprint: ""
+  url: ""
+
+image:
+  repository: ghcr.io/siiimooon/istio-ca-shim-step
+  pullPolicy: IfNotPresent
+  tag: latest
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: istio-ca-shim-step.dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: istio-ca-shim-step-tls
+      hosts:
+        - istio-ca-shim-step.dev.local

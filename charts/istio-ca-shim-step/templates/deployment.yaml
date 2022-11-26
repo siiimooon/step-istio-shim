@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "istio-ca-shim-step.fullname" . }}
+  labels:
+    {{- include "istio-ca-shim-step.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "istio-ca-shim-step.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "istio-ca-shim-step.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - "istio-ca-shim-step"
+          - "csr-server"
+          {{- if .Values.ca}}
+          {{- if .Values.ca.url}}
+          - "--ca-url"
+          - "{{ .Values.ca.url }}"
+          {{- end }}
+          {{- if .Values.ca.fingerprint}}
+          - "--ca-fingerprint"
+          - "{{ .Values.ca.fingerprint }}"
+          {{- end }}
+          {{- end }}
+          ports:
+            - name: grpc
+              containerPort: 9696
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 6
+            tcpSocket:
+              port: grpc
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
