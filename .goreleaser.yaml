@@ -3,11 +3,8 @@ builds:
   - env: [CGO_ENABLED=0]
     goos:
       - linux
-      - windows
-      - darwin
     goarch:
       - amd64
-      - arm64
 dockers:
   - image_templates: ["ghcr.io/siiimooon/istio-ca-shim-step:{{ .Version }}"]
     dockerfile: Dockerfile
