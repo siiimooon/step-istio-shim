@@ -1,6 +1,6 @@
 module github.com/siiimooon/istio-ca-shim-step
 
-go 1.18
+go 1.19
 
 require (
 	github.com/smallstep/certificates v0.23.0
