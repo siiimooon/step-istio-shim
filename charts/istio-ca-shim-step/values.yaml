@@ -5,7 +5,7 @@ ca:
 image:
   repository: ghcr.io/siiimooon/istio-ca-shim-step
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: ""
 
 ingress:
   enabled: false

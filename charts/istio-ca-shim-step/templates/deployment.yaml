@@ -15,11 +15,10 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-          - "istio-ca-shim-step"
-          - "csr-server"
+          - "/istio-ca-shim-step"
           {{- if .Values.ca}}
           {{- if .Values.ca.url}}
           - "--ca-url"
