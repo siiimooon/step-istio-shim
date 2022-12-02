@@ -34,7 +34,7 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: 80
+                  number: 9696
           {{- end }}
     {{- end }}
 {{- end }}

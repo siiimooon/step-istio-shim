@@ -56,7 +56,7 @@ func (s *Server) CreateCertificate(ctx context.Context, request *securityapi.Ist
 }
 
 func (s *Server) sign(token string, request *securityapi.IstioCertificateRequest) (*securityapi.IstioCertificateResponse, error) {
-	client, err := ca.NewClient(s.ca, ca.WithRootSHA256(s.ca))
+	client, err := ca.NewClient(s.ca, ca.WithRootSHA256(s.caFingerprint))
 	if err != nil {
 		return nil, fmt.Errorf("failed at establishing connection to ca")
 	}
