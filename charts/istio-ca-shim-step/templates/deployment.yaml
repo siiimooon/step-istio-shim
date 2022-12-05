@@ -29,6 +29,10 @@ spec:
           - "{{ .Values.ca.fingerprint }}"
           {{- end }}
           {{- end }}
+          {{- if .Values.loglevel }}
+          - "--loglevel"
+          - "{{ .Values.loglevel }}"
+          {{- end }}
           ports:
             - name: grpc
               containerPort: 9696

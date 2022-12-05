@@ -4,17 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/siiimooon/istio-ca-shim-step/internal/common"
+	"github.com/siiimooon/istio-ca-shim-step/internal/monitoring"
 	"github.com/smallstep/certificates/api"
 	"github.com/smallstep/certificates/ca"
 	"go.step.sm/crypto/pemutil"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	securityapi "istio.io/api/security/v1alpha1"
 	"istio.io/istio/pkg/security"
 	"net"
 )
 
-func New() (*Server, error) {
-	return &Server{}, nil
+func New(logger *zap.SugaredLogger) (*Server, error) {
+	server := Server{}
+	server.logger = logger
+	return &server, nil
 }
 
 func (s *Server) Start(caUrl, caFingerprint string) error {
@@ -25,7 +29,7 @@ func (s *Server) Start(caUrl, caFingerprint string) error {
 		return fmt.Errorf("failed to listen %s: %v", ":9696", err)
 	}
 	grpcServer := grpc.NewServer()
-	fmt.Printf("server started. listening to %s", addr)
+	s.logger.Infof("server started. listening to %s", addr)
 	securityapi.RegisterIstioCertificateServiceServer(grpcServer, s)
 
 	go func() {
@@ -48,11 +52,20 @@ func (s *Server) Start(caUrl, caFingerprint string) error {
 }
 
 func (s *Server) CreateCertificate(ctx context.Context, request *securityapi.IstioCertificateRequest) (*securityapi.IstioCertificateResponse, error) {
+	monitoring.IncProcessedRequests()
 	token, err := security.ExtractBearerToken(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed at extracting auth token from request")
+		err = fmt.Errorf("failed at extracting auth token from request")
+		monitoring.IncFailedRequests()
+		s.logger.Warnw(err.Error())
+		return nil, err
 	}
-	return s.sign(token, request)
+	certificateResponse, err := s.sign(token, request)
+	if err != nil {
+		monitoring.IncFailedRequests()
+		s.logger.Warnw("failed at signing certificate", zap.Error(err))
+	}
+	return certificateResponse, err
 }
 
 func (s *Server) sign(token string, request *securityapi.IstioCertificateRequest) (*securityapi.IstioCertificateResponse, error) {

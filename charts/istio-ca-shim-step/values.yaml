@@ -1,3 +1,4 @@
+loglevel: warn
 ca:
   fingerprint: ""
   url: ""

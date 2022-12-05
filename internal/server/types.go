@@ -1,6 +1,7 @@
 package server
 
 import (
+	"go.uber.org/zap"
 	securityapi "istio.io/api/security/v1alpha1"
 	"sync"
 )
@@ -11,4 +12,5 @@ type Server struct {
 	caFingerprint string
 	ready         bool
 	lock          sync.RWMutex
+	logger        *zap.SugaredLogger
 }
