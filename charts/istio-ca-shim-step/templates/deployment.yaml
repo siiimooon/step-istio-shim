@@ -33,6 +33,12 @@ spec:
           - "--loglevel"
           - "{{ .Values.loglevel }}"
           {{- end }}
+          {{- if .Values.tls.enabled }}
+          - "--tls-crt"
+          - "/tls/tls.crt"
+          - "--tls-key"
+          - "/tls/tls.key"
+          {{- end }}
           ports:
             - name: grpc
               containerPort: 9696
@@ -51,3 +57,12 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+      {{- if .Values.tls.enabled }}
+          volumeMounts:
+            - mountPath: /tls
+              name: tls
+      volumes:
+        - name: tls
+          secret:
+            secretName: {{ .Values.tls.secretName }}
+      {{- end }}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/siiimooon/istio-ca-shim-step/internal/cert"
 	"github.com/siiimooon/istio-ca-shim-step/internal/monitoring"
 	"github.com/siiimooon/istio-ca-shim-step/internal/server"
 	"github.com/spf13/cobra"
@@ -12,6 +13,8 @@ var (
 	caUrl         = ""
 	caFingerprint = ""
 	loglevel      = ""
+	tlsCrt        = ""
+	tlsKey        = ""
 )
 
 var rootCmd = &cobra.Command{
@@ -19,7 +22,10 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		monitoring.ServeMetrics()
 		server, _ := server.New(monitoring.NewLogger(loglevel))
-		_ = server.Start(caUrl, caFingerprint)
+
+		getCertificate := cert.Loader(tlsCrt, tlsKey)
+		_, _ = getCertificate(nil)
+		_ = server.Start(caUrl, caFingerprint, getCertificate)
 	},
 }
 
@@ -34,6 +40,8 @@ func init() {
 	rootCmd.Flags().StringVar(&caUrl, "ca-url", "", "url of step ca")
 	rootCmd.Flags().StringVar(&caFingerprint, "ca-fingerprint", "", "fingerprint of root certificate of the ca")
 	rootCmd.Flags().StringVar(&loglevel, "loglevel", "info", "loglevel of server")
+	rootCmd.Flags().StringVar(&tlsCrt, "tls-crt", "", "path of the tls crt")
+	rootCmd.Flags().StringVar(&tlsKey, "tls-key", "", "path of the tls key")
 
 	err := rootCmd.MarkFlagRequired("ca-url")
 	if err != nil {

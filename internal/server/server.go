@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/siiimooon/istio-ca-shim-step/internal/common"
 	"github.com/siiimooon/istio-ca-shim-step/internal/monitoring"
@@ -10,6 +11,7 @@ import (
 	"go.step.sm/crypto/pemutil"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	securityapi "istio.io/api/security/v1alpha1"
 	"istio.io/istio/pkg/security"
 	"net"
@@ -21,14 +23,23 @@ func New(logger *zap.SugaredLogger) (*Server, error) {
 	return &server, nil
 }
 
-func (s *Server) Start(caUrl, caFingerprint string) error {
+func (s *Server) Start(caUrl, caFingerprint string, getCertificate func(helloInfo *tls.ClientHelloInfo) (*tls.Certificate, error)) error {
 	addr := ":9696"
 	ctx := context.TODO()
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("failed to listen %s: %v", ":9696", err)
 	}
-	grpcServer := grpc.NewServer()
+
+	var grpcServer *grpc.Server
+	var serverOpts []grpc.ServerOption
+	if getCertificate != nil {
+		creds := credentials.NewTLS(&tls.Config{
+			GetCertificate: getCertificate,
+		})
+		serverOpts = []grpc.ServerOption{grpc.Creds(creds)}
+	}
+	grpcServer = grpc.NewServer(serverOpts...)
 	s.logger.Infof("server started. listening to %s", addr)
 	securityapi.RegisterIstioCertificateServiceServer(grpcServer, s)
 

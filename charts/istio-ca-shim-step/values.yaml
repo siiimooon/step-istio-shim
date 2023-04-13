@@ -8,6 +8,10 @@ image:
   pullPolicy: IfNotPresent
   tag: ""
 
+tls:
+  enabled: false
+  secretName: ""
+
 ingress:
   enabled: false
   className: ""
