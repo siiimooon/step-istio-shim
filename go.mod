@@ -6,7 +6,7 @@ require (
 	github.com/prometheus/client_golang v1.15.0
 	github.com/smallstep/certificates v0.24.0
 	github.com/spf13/cobra v1.7.0
-	go.step.sm/crypto v0.29.3
+	go.step.sm/crypto v0.37.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.54.0
 	istio.io/api v0.0.0-20230411172800-cb047abbdf91
