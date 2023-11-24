@@ -10,7 +10,7 @@ require (
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.54.0
 	istio.io/api v0.0.0-20230411172800-cb047abbdf91
-	istio.io/istio v0.0.0-20230413165446-b95d8884af75
+	istio.io/istio d841018fa8b9
 )
 
 require (
